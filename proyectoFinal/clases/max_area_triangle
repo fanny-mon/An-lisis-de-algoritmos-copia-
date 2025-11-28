@@ -1,0 +1,57 @@
+# max_area_triangle.py
+import random
+from convex_hull import Punto, generar_casco_convexo
+import matplotlib.pyplot as plt
+
+def leer_archivo():
+    puntos = set()
+    with open("campo.in","r") as f:
+        for linea in f:
+            x, y = map(int, linea.split())
+            if x == -1 and y == -1:
+                break
+            puntos.add((x, y))
+    lista = [Punto(x, y) for x, y in puntos]
+    lista.sort(key=lambda p: (p.x, p.y))
+    return lista
+
+def area_doble(a, b, c):
+    return abs((b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x))
+
+def triangulo_mayor_area(casco):
+    mejor = 0
+    trian = []
+    n = len(casco)
+    for i in range(n-2):
+        for j in range(i+1, n-1):
+            for k in range(j+1, n):
+                ar = area_doble(casco[i], casco[j], casco[k])
+                if ar > mejor:
+                    mejor = ar
+                    trian = [casco[i], casco[j], casco[k]]
+    return trian
+
+def guardar_salida(triangulo):
+    with open("campo.out","w") as f:
+        for p in triangulo:
+            f.write(f"{p.x} {p.y}\n")
+
+def graficar(casco, triangulo):
+    xs = [p.x for p in casco] + [casco[0].x]
+    ys = [p.y for p in casco] + [casco[0].y]
+    plt.plot(xs, ys, '-o', color='blue')
+
+    for p in triangulo:
+        plt.plot(p.x, p.y, 'ro')
+
+    for i in range(3):
+        a, b = triangulo[i], triangulo[(i+1)%3]
+        plt.plot([a.x, b.x],[a.y, b.y],color='green')
+    plt.show()
+
+# Main
+puntos = leer_archivo()
+casco = generar_casco_convexo(puntos)
+triangulo = triangulo_mayor_area(casco)
+guardar_salida(triangulo)
+graficar(casco, triangulo)
