@@ -1,0 +1,40 @@
+# convex_hull.py
+class Punto:
+    def __init__(self, x=0, y=0):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return f"P({self.x}, {self.y})"
+
+def crear_vector(a, b):
+    return Punto(b.x - a.x, b.y - a.y)
+
+def producto_cruz(v1, v2):
+    return v1.x * v2.y - v1.y * v2.x
+
+def orientacion(a, b, c):
+    return producto_cruz(crear_vector(a, b), crear_vector(a, c))
+
+def construir_casco_superior(puntos):
+    casco = []
+    for p in puntos:
+        while len(casco) >= 2 and orientacion(casco[-2], casco[-1], p) >= 0:
+            casco.pop()
+        casco.append(p)
+    return casco
+
+def construir_casco_inferior(puntos):
+    casco = []
+    for p in reversed(puntos):
+        while len(casco) >= 2 and orientacion(casco[-2], casco[-1], p) >= 0:
+            casco.pop()
+        casco.append(p)
+    return casco
+
+def generar_casco_convexo(puntos):
+    if len(puntos) <= 1:
+        return puntos
+    sup = construir_casco_superior(puntos)
+    inf = construir_casco_inferior(puntos)
+    return sup[:-1] + inf[:-1]
